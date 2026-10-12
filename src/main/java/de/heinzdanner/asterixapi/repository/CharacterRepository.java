@@ -10,6 +10,8 @@ public interface CharacterRepository extends MongoRepository<Character, String> 
 
     List<Character> findByAgeLessThanEqual(int age);
 
+    List<Character> findByAgeGreaterThan(int age);
+    
     @Aggregation(pipeline = {
             "{ $match: { profession: ?0 } }",
             "{ $group: { _id: null, avgAge: { $avg: '$age' } } }"

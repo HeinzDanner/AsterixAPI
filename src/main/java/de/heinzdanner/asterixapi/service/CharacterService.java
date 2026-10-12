@@ -75,4 +75,9 @@ public class CharacterService {
     public Optional<Double> averageAge(String profession) {
         return Optional.ofNullable(repository.findAverageAgeByProfession(profession));
     }
+
+    public List<Character> findOlderThan(int age) {
+        return repository.findByAgeGreaterThan(age);
+    }
+    
 }

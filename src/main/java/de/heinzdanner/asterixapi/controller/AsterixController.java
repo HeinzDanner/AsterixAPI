@@ -22,10 +22,14 @@ public class AsterixController {
 
     // GET /asterix/characters  oder  /asterix/characters?age=35  (maximales Alter)
     @GetMapping
-    public List<Character> getAllCharacters(@RequestParam(required = false) Integer age) {
+    public List<Character> getAllCharacters(@RequestParam(required = false) Integer age,
+                                            @RequestParam(required = false) Integer ageGreaterThan) {
+        if (ageGreaterThan != null) {
+            return service.findOlderThan(ageGreaterThan);
+        }
         return service.findAll(age);
     }
-    
+
     @GetMapping("/{id}")
     public ResponseEntity<Character> getById(@PathVariable String id) {
         Optional<Character> character = service.findById(id);
