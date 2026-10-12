@@ -4,7 +4,11 @@ import de.heinzdanner.asterixapi.model.Character;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
+import java.util.List;
+
 public interface CharacterRepository extends MongoRepository<Character, String> {
+
+    List<Character> findByAgeLessThanEqual(int age);
 
     @Aggregation(pipeline = {
             "{ $match: { profession: ?0 } }",

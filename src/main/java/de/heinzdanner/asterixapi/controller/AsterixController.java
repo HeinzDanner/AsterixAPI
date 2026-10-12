@@ -1,5 +1,6 @@
 package de.heinzdanner.asterixapi.controller;
 
+import de.heinzdanner.asterixapi.dto.CharacterDto;
 import de.heinzdanner.asterixapi.model.Character;
 import de.heinzdanner.asterixapi.service.CharacterService;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +20,12 @@ public class AsterixController {
         this.service = service;
     }
 
+    // GET /asterix/characters  oder  /asterix/characters?age=35  (maximales Alter)
     @GetMapping
-    public List<Character> getCharacters(@RequestParam(required = false) String name,
-                                         @RequestParam(required = false) Integer age,
-                                         @RequestParam(required = false) String profession) {
-        return service.findAll(name, age, profession);
+    public List<Character> getAllCharacters(@RequestParam(required = false) Integer age) {
+        return service.findAll(age);
     }
-
+    
     @GetMapping("/{id}")
     public ResponseEntity<Character> getById(@PathVariable String id) {
         Optional<Character> character = service.findById(id);
@@ -37,24 +37,22 @@ public class AsterixController {
         return ResponseEntity.ok(character.get());
     }
 
-    // Charakter erstellen (CRUD-Aufgabe)
     @PostMapping
-    public ResponseEntity<Character> create(@RequestBody Character character) {
-        Character saved = service.create(character);
+    public ResponseEntity<Character> create(@RequestBody CharacterDto dto) {
+        Character saved = service.create(dto);
         URI location = URI.create("/asterix/characters/" + saved.id());
         return ResponseEntity.created(location).body(saved);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Character> update(@PathVariable String id, @RequestBody Character character) {
-        Optional<Character> updated = service.update(id, character);
+    public ResponseEntity<Character> update(@PathVariable String id, @RequestBody CharacterDto dto) {
+        Optional<Character> updated = service.update(id, dto);
 
         if (updated.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
         return ResponseEntity.ok(updated.get());
-        //   return updated.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")

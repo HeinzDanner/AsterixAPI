@@ -1,5 +1,6 @@
 package de.heinzdanner.asterixapi.service;
 
+import de.heinzdanner.asterixapi.dto.CharacterDto;
 import de.heinzdanner.asterixapi.model.Character;
 import de.heinzdanner.asterixapi.repository.CharacterRepository;
 import org.springframework.stereotype.Service;
@@ -11,34 +12,55 @@ import java.util.Optional;
 public class CharacterService {
 
     private final CharacterRepository repository;
+    private final IdService idService;
 
-    public CharacterService(CharacterRepository repository) {
+    public CharacterService(CharacterRepository repository, IdService idService) {
         this.repository = repository;
+        this.idService = idService;
     }
 
-    public List<Character> findAll(String name, Integer age, String profession) {
-        return repository.findAll().stream()
-                .filter(c -> name == null || c.name().equalsIgnoreCase(name))
-                .filter(c -> age == null || c.age() == age)
-                .filter(c -> profession == null || c.profession().equalsIgnoreCase(profession))
-                .toList();
+    public List<Character> findAll(Integer age) {
+        if (age == null) {
+            return repository.findAll();
+        }
+        return repository.findByAgeLessThanEqual(age);
     }
+    /*
+   public List<Character> findAll(Integer age) {
+    List<Character> all = repository.findAll();
+
+    if (age == null) {
+        return all;
+    }
+
+    return all.stream()
+            .filter(c -> c.age() <= age)
+            .toList();
+}
+    */
+
 
     public Optional<Character> findById(String id) {
         return repository.findById(id);
     }
 
-    public Character create(Character character) {
+    public Character create(CharacterDto dto) {
+        Character character = new Character(
+                idService.randomId(),
+                dto.name(),
+                dto.age(),
+                dto.profession()
+        );
         return repository.save(character);
     }
 
-    public Optional<Character> update(String id, Character character) {
+    public Optional<Character> update(String id, CharacterDto dto) {
         if (!repository.existsById(id)) {
             return Optional.empty();
         }
 
-        Character toSave = new Character(id, character.name(), character.age(), character.profession());
-        return Optional.of(repository.save(toSave));
+        Character character = new Character(id, dto.name(), dto.age(), dto.profession());
+        return Optional.of(repository.save(character));
     }
 
     public boolean delete(String id) {
@@ -51,7 +73,6 @@ public class CharacterService {
     }
 
     public Optional<Double> averageAge(String profession) {
-        Double average = repository.findAverageAgeByProfession(profession);
-        return Optional.ofNullable(average);
+        return Optional.ofNullable(repository.findAverageAgeByProfession(profession));
     }
 }
